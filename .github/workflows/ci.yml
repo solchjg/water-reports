@@ -1,0 +1,39 @@
+name: tests + lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install 'pytest==8.*' 'ruff==0.16.1' -r requirements.txt
+      - run: ruff check .
+      - run: pytest -q
+
+  perl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q libexcel-writer-xlsx-perl libdbd-sqlite3-perl \
+            libdatetime-perl libdatetime-timezone-perl libemail-mime-perl \
+            libarchive-zip-perl libspreadsheet-parsexlsx-perl
+      - run: prove -l t/
+        working-directory: perl
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t water-reports .
+      - name: The image runs
+        run: docker run --rm water-reports --help | grep -q ingest

@@ -1,0 +1,8 @@
+water.toml
+.env
+data/
+exports/
+water-data/
+__pycache__/
+*.pyc
+.pytest_cache/
